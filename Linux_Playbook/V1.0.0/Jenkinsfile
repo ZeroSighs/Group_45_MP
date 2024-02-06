@@ -1,0 +1,95 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice(name: 'ScanOption', choices: ['WinServer', 'Kali', 'WinHost'], description: "Choose a host to scan")
+    }
+
+    environment {
+        scan1 = "dd6aacde-8a96-4dd6-a099-95204d5fbb58"
+        scan2 = "2430bf64-0ebd-46e1-b559-36a670eb79c5"
+        scan3 = "f5f2cc1c-cb2a-4310-831a-3a1f224c6844"
+        host1 = "192.168.1.3"
+        host2 = "192.168.1.2"
+        host3 = "192.168.2.1"
+        useroptn = ""
+        scanip = ""
+        reportIdValue = ""
+        reportout = ""
+    }
+
+    stages {
+        stage('Start GVM') {
+            steps {
+                script {
+                    def commandOutput = sh(returnStatus: true, script: 'sudo gvm-start')
+                    if (commandOutput == 0) {
+                        echo "gvm started"
+                    } else {
+                        error "gvm-start command failed with exit code: ${commandOutput}"
+                    }
+                }
+            }
+        }
+        stage('Choose Scan') {
+            steps {
+                script {
+                    switch (params.ScanOption) {
+                        case 'WinServer':
+                            useroptn = env.scan1
+                            scanip = env.host1
+                            break
+                        case 'Kali':
+                            useroptn = env.scan2
+                            scanip = env.host2
+                            break
+                        case 'WinHost':
+                            useroptn = env.scan3
+                            scanip = env.host3
+                            break
+                    }
+                    echo "Selected scan option: ${useroptn}"
+                }
+            }
+        }
+        stage('Checking if host is online'){
+            steps{
+                script{
+                    def pingExitCode = sh(script: "ping -c 4 -I eth0 ${scanip}", returnStatus: true)
+                    if (pingExitCode != 0) {
+                        currentBuild.result = "FAILURE"
+                        error("Failed to reach host. Check if the host is online.")
+                        builderror = true
+                    }
+                }
+            }
+        }
+        stage('Initiating Scan - This may take around 30 minutes'){
+            steps{
+                script{
+                    def output = sh(script: "gvm-cli --gmp-username admin --gmp-password Password123! socket --socketpath /run/gvmd/gvmd.sock --xml '<start_task task_id=\"${useroptn}\"/>'", returnStdout: true).trim()
+                    def reportId = (output =~ /<report_id>(.*?)<\/report_id>/).find { it }
+                    def reportIdValue = reportId[1]
+                    echo "Report ID: ${reportIdValue}"
+                    sleep time: 900, unit: 'SECONDS'
+                }
+            }
+        }
+        stage('Retrieving scan report'){
+            steps{
+                script{
+                    epoch_time = System.currentTimeMillis()
+                    reportout = "/tmp/gvm-report-${epoch_time}.pdf"
+                    sh "gvm-script --gmp-username admin --gmp-password Password123! socket --socketpath /run/gvmd/gvmd.sock /usr/share/projectstuff/scripts/export-pdf-report.gmp.py \"${reportIdValue}\" \"${reportout}\""
+                }
+            }
+        }
+        stage('Sending report'){
+            steps{
+                script {
+                    sh "curl -F \"chat_id=6680816225\" -F \"document=@${reportout}\" -F \"disable_notification=true\" -F \"caption='GVM Scan Results'\" \"https://api.telegram.org/bot6964667296:AAF8Bv8XibWEPeQ4CQCL5htOfEVJTrffhHs/sendDocument\""
+                }
+            }
+        }
+    }
+}
