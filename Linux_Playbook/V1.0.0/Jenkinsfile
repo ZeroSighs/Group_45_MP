@@ -69,7 +69,7 @@ pipeline {
                 script{
                     def output = sh(script: "gvm-cli --gmp-username admin --gmp-password Password123! socket --socketpath /run/gvmd/gvmd.sock --xml '<start_task task_id=\"${useroptn}\"/>'", returnStdout: true).trim()
                     def reportId = (output =~ /<report_id>(.*?)<\/report_id>/).find { it }
-                    def reportIdValue = reportId[1]
+                    reportIdValue = reportId[1]
                     echo "Report ID: ${reportIdValue}"
                     sleep time: 900, unit: 'SECONDS'
                 }
@@ -87,7 +87,7 @@ pipeline {
         stage('Sending report'){
             steps{
                 script {
-                    sh "curl -F \"chat_id=6680816225\" -F \"document=@${reportout}\" -F \"disable_notification=true\" -F \"caption='GVM Scan Results'\" \"https://api.telegram.org/bot6964667296:AAF8Bv8XibWEPeQ4CQCL5htOfEVJTrffhHs/sendDocument\""
+                    sh "curl -F \"chat_id=6680816225\" -F \"document=@${reportout}\" -F \"disable_notification=true\" -F \"caption=GVM Scan Results\" \"https://api.telegram.org/bot6964667296:AAF8Bv8XibWEPeQ4CQCL5htOfEVJTrffhHs/sendDocument\""
                 }
             }
         }
