@@ -1,0 +1,197 @@
+---
+- name: Kali Linux CIS Benchmark Checks
+  hosts: kali
+  gather_facts: yes
+
+
+  tasks:
+
+    - name: Check if cramfs module exists on the system
+      command: modinfo cramfs
+      register: cramfs_info
+      ignore_errors: true
+
+    - name: Display if cramfs module exists
+      debug:
+        var: cramfs_info.rc
+      when: cramfs_info.rc == 0
+      tags: cramfs_existence
+
+    - name: Check if cramfs module is loadable
+      command: modprobe --dry-run cramfs
+      register: cramfs_loadable
+      ignore_errors: true
+
+    - name: Display result - Cramfs module loadability
+      debug:
+        var: cramfs_loadable.rc
+      when: cramfs_loadable.rc == 0
+      tags: cramfs_loadability
+
+    - name: Check if cramfs module is deny-listed
+      command: lsmod
+      register: lsmod_output
+      changed_when: false
+
+    - name: Display lsmod output cramfs
+     debug:
+        var: lsmod_output
+
+    - name: Display result - cramfs module deny-listing
+      debug:
+        msg: "cramfs module is deny-listed."
+      tags: cramfs_deny_listing
+
+    - name: Check if SquashFS module exists
+      command: modinfo squashfs
+      ignore_errors: true
+      register: squashfs_info
+
+    - name: Display result - SquashFS module existence
+      debug:
+        var: squashfs_info.rc
+      when: squashfs_info.rc == 0
+      tags: squashfs_existence
+
+    - name: Check if SquashFS module is loadable
+      command: modprobe --dry-run squashfs
+      ignore_errors: true
+      register: squashfs_loadable
+
+    - name: Display result - SquashFS module loadability
+      debug:
+        var: squashfs_loadable.rc
+      when: squashfs_loadable.rc == 0
+      tags: squashfs_loadability
+
+    - name: Check if SquashFS module is deny-listed
+      command: lsmod
+      register: lsmod_2_output
+      changed_when: false
+
+    - name: Display lsmod output squashfs
+     debug:
+        var: lsmod_2_output
+
+    - name: Display result - SquashFS module deny-listing
+      debug:
+        msg: "SquashFS module is deny-listed."
+      tags: squashfs_deny_listing
+
+    - name: Check if UDF module exists
+      command: modinfo udf
+      ignore_errors: true
+      register: udf_info
+
+    - name: Display result - UDF module existence
+      debug:
+        var: udf_info.rc
+      when: udf_info.rc == 0
+      tags: udf_existence
+
+    - name: Check if UDF module is loadable
+      command: modprobe --dry-run udf
+      ignore_errors: true
+      register: udf_loadable
+
+    - name: Display result - UDF module loadability
+      debug:
+        var: udf_loadable.rc
+      when: udf_loadable.rc == 0
+      tags: udf_loadability
+
+    - name: Check if UDF module is deny-listed
+      command: lsmod
+      register: lsmod_udf_output
+      changed_when: false
+
+    - name: Display lsmod output for UDF
+      debug:
+        var: lsmod_udf_output
+
+    - name: Display result - UDF module deny-listing
+      debug:
+        msg: "UDF module is deny-listed."
+      tags: udf_deny_listing
+
+   - name: Check if /tmp is a separate partition using findmnt
+      command: findmnt --kernel /tmp
+      register: findmnt_output
+      ignore_errors: true
+
+    - name: Check if tmp.mount is enabled
+      command: systemctl is-enabled tmp.mount
+      register: systemctl_output
+      ignore_errors: true
+
+    - name: Display the results
+      debug:
+        msg: |
+          /tmp is{{ ' not' if findmnt_output.rc != 0 else '' }} a separate partition.
+          tmp.mount is{{ ' enabled' if 'not-found' not in systemctl_output.stdout else ' not-found' }}
+
+    - name: Check if nodev option is set on /tmp partition
+      command: findmnt --kernel /tmp | grep nodev
+      register: findmnt_nodev_output
+      ignore_errors: true
+
+    - name: Display nodev results
+      debug:
+        msg: |
+          nodev is{{ ' not' if findmnt_nodev_output.rc != 0 else '' }} set on /tmp partition
+
+    - name: Check if noexec option is set on /tmp partition
+      command: findmnt --kernel /tmp | grep noexec
+      register: findmnt_noexec_output
+      ignore_errors: true
+
+    - name: Display noexec results
+      debug:
+        msg: |
+          noexec is{{ ' not' if findmnt_noexec_output.rc != 0 else '' }} set on /tmp partition
+
+    - name: Check if nosuid option is set on /tmp partition
+      command: findmnt --kernel /tmp | grep nosuid
+      register: findmnt_nosuid_output
+      ignore_errors: true
+
+    - name: Display nosuid results
+      debug:
+        msg: |
+          nosuid is{{ ' not' if findmnt_nosuid_output.rc != 0 else '' }} set on /tmp partition
+
+    - name: Check if /var is a separate partition using findmnt
+      command: findmnt --kernel /var
+      register: findmnt_output_2
+      ignore_errors: true
+
+    - name: Check if var.mount is enabled
+      command: systemctl is-enabled var.mount
+      register: systemctl_output_2
+      ignore_errors: true
+
+    - name: Display the results
+      debug:
+        msg: |
+          /var is{{ ' not' if findmnt_output_2.rc != 0 else '' }} a separate partition.
+          var.mount is{{ ' enabled' if 'not-found' not in systemctl_output_2.stdout else ' not-found' }}
+
+    - name: Check if nodev option is set on /var partition
+      command: findmnt --kernel /var | grep nodev
+      register: findmnt_nodev_output_2
+      ignore_errors: true
+
+    - name: Display /var nodev results
+      debug:
+        msg: |
+          nodev is{{ ' not' if findmnt_nodev_output_2.rc != 0 else '' }} set on /var partition
+
+    - name: Check if noexec option is set on /var partition
+      command: findmnt --kernel /var | grep noexec
+      register: findmnt_noexec_output_2
+      ignore_errors: true
+
+    - name: Display /var noexec results
+      debug:
+        msg: |
+          noexec is{{ ' not' if findmnt_noexec_output_2.rc != 0 else '' }} set on /var partition
