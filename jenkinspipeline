@@ -7,18 +7,22 @@ pipeline {
                 script {
                     // Specify the path to your local Jenkinsfile
                     def scriptPath = '/home/ubuntu/jenkinscript1.sh'
-                    def logFilePath = '/tmp/logfile.txt'
+                    def logFilePath = '/home/ubuntu/jenkins.log'
 
-                    // Execute the Jenkinsfile and redirect output to /tmp/logfile.txt
-                    sh "bash ${scriptPath} > ${logFilePath} 2>&1"
+                    // Get the current timestamp
+                    def timestamp = sh(script: "date '+%Y-%m-%d %H:%M:%S'", returnStdout: true).trim()
 
-                    // Print the log file content for debugging (optional)
-                    echo "Script Output:"
-                    def scriptOutput = readFile(logFilePath)
-                    echo scriptOutput
+                    // Execute the Jenkinsfile and append output with timestamp to the log file
+                    sh "bash ${scriptPath} >> ${logFilePath} 2>&1"
+                    sh "echo '${timestamp} - Script execution completed.' >> ${logFilePath}"
 
-                    // Send success notification to Telegram
-                    sendTelegramNotification(scriptOutput)
+                    // Print the current log file content for debugging (optional)
+                    echo "Current Script Output:"
+                    def currentScriptOutput = sh(script: "tail -n 11 ${logFilePath}", returnStdout: true).trim()
+                    echo currentScriptOutput
+
+                    // Send success notification to Telegram with the current content
+                    sendTelegramNotification(currentScriptOutput)
                 }
             }
         }
@@ -29,7 +33,9 @@ pipeline {
             }
             steps {
                 script {
-                    sendTelegramNotification("Jenkins Job Completed Successfully. Logging result saved")
+                    // Send a test message to Telegram
+                    sendTelegramNotification("Jenkins Job Completed Successfully. Logging Results Saved.")
+                    sendTelegramNotification("Router Status : UP")
                 }
             }
         }
@@ -38,5 +44,7 @@ pipeline {
 
 // Define the sendTelegramNotification function outside the pipeline block
 def sendTelegramNotification(msg) {
+    // Send the message to Telegram
     sh "curl -X POST -H 'Content-Type: application/json' -d '{\"chat_id\": \"2120613878\", \"text\": \"$msg\", \"disable_notification\": true}' https://api.telegram.org/bot6964667296:AAF8Bv8XibWEPeQ4CQCL5htOfEVJTrffhHs/sendMessage"
 }
+
