@@ -1,0 +1,56 @@
+#!/bin/bash
+echo "Starting jenkinsscript1.sh execution..."
+
+# Define router IP address, SSH user, and password
+router_ip="192.168.1.68"
+ssh_user="cisco"
+ssh_password="password"
+
+echo "Connecting to $router_ip as $ssh_user..."
+
+# Use expect for the running_config command
+running_config=$(expect -c "
+  spawn ssh $ssh_user@$router_ip {show running-config}
+  set timeout 30  ;# Adjust the timeout as needed
+  log_user 1
+
+  expect {
+    \"*assword:\" {
+      send \"$ssh_password\r\"
+      exp_continue
+    }
+    \"*(yes/no)?*\" {
+      send \"yes\r\"
+      exp_continue
+    }
+    \"*Connection refused*\" {
+      puts \"Connection refused error\"
+      exit 1
+    }
+    \"*Permission denied*\" {
+      puts \"Permission denied error\"
+      exit 1
+    }
+    eof {
+      puts \"SSH connection closed unexpectedly\"
+      exit 1
+    }
+  }
+")
+echo "Connection successful. Retrieving router information..."
+
+# Generate a timestamp
+timestamp=$(date +"%Y%m%d%H%M%S")
+
+# Extract important information using grep
+filtered_config=$(echo "$running_config" | grep -E 'interface|ip address|hostname')
+
+echo "Router Information:"
+echo "$filtered_config"
+
+# Log filtered configuration to a file with the absolute path
+log_file="jenkins.log"
+echo -e "Router Important Configuration:\n$filtered_config" >> "$log_file"
+echo -e "Timestamp: $timestamp" >> "$log_file"
+echo "jenkinscript1.sh execution complete."
+
