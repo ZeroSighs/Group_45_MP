@@ -1,7 +1,7 @@
 ---
 
 - name: Add host to Windows Active Directory
-- hosts: winclient
+  hosts: winclient
   gather_facts: false
   vars: 
     admin_username: "{{ adadmuser }}"
