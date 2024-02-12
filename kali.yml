@@ -34,7 +34,7 @@
       changed_when: false
 
     - name: Display lsmod output cramfs
-     debug:
+      debug:
         var: lsmod_output
 
     - name: Display result - cramfs module deny-listing
@@ -68,10 +68,6 @@
       command: lsmod
       register: lsmod_2_output
       changed_when: false
-
-    - name: Display lsmod output squashfs
-     debug:
-        var: lsmod_2_output
 
     - name: Display result - SquashFS module deny-listing
       debug:
@@ -114,7 +110,7 @@
         msg: "UDF module is deny-listed."
       tags: udf_deny_listing
 
-   - name: Check if /tmp is a separate partition using findmnt
+    - name: Check if /tmp is a separate partition using findmnt
       command: findmnt --kernel /tmp
       register: findmnt_output
       ignore_errors: true
