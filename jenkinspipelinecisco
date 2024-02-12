@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage("Execute Playbook") {
+            steps {
+                script {
+                    def playbookResult = ansiblePlaybook(
+                        credentialsId: '358e30b7-0f5e-4bb4-91c3-6fc3f08e0ad1',
+                        disableHostKeyChecking: true,
+                        installation: 'Ansible',
+                        inventory: 'hosts',
+                        playbook: 'kali.yml',
+                        vaultTmpPath: ''
+                    )
+
+                    // Check the build result and set an environment variable
+                    currentBuild.result = playbookResult == 0 ? 'SUCCESS' : 'FAILURE'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Send email regardless of build result
+            emailext attachLog: true,
+                      body: 'Jenkins pipeline execution result is ready. Refer to attached',
+                      subject: "Jenkins Pipeline Execution Result: ${currentBuild.result}",
+                      to: 'kappaafish20@gmail.com, therealzerosighs09@gmail.com'
+        }
+    }
+}
