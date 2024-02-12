@@ -2,9 +2,9 @@
 echo "Starting jenkinsscript1.sh execution..."
 
 # Define router IP address, SSH user, and password
-router_ip="192.168.1.68"
-ssh_user="cisco"
-ssh_password="password"
+router_ip="192.168.1.1"
+ssh_user="user"
+ssh_password="Password123!"
 
 echo "Connecting to $router_ip as $ssh_user..."
 
