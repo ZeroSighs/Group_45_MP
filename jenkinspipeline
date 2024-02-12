@@ -7,7 +7,7 @@ pipeline {
                 script {
                     // Specify the path to your local Jenkinsfile
                     def scriptPath = '/home/ubuntu/jenkinscript1.sh'
-                    def logFilePath = '/home/ubuntu/jenkins.log'
+                    def logFilePath = '/tmp/jenkins.log'
 
                     // Get the current timestamp
                     def timestamp = sh(script: "date '+%Y-%m-%d %H:%M:%S'", returnStdout: true).trim()
