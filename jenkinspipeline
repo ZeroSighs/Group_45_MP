@@ -13,8 +13,8 @@ pipeline {
                     def timestamp = sh(script: "date '+%Y-%m-%d %H:%M:%S'", returnStdout: true).trim()
 
                     // Execute the Jenkinsfile and append output with timestamp to the log file
-                    sh "bash ${scriptPath} >> ${logFilePath} 2>&1"
-                    sh "echo '${timestamp} - Script execution completed.' >> ${logFilePath}"
+                    sh "sudo bash ${scriptPath} >> ${logFilePath} 2>&1"
+                    sh "sudo echo '${timestamp} - Script execution completed.' >> ${logFilePath}"
 
                     // Print the current log file content for debugging (optional)
                     echo "Current Script Output:"
