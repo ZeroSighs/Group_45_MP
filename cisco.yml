@@ -1,0 +1,50 @@
+---
+- name: Check CSR1000v with CIS Benchmark
+  hosts: csr1000v
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Check if aaa new-model is enabled
+      ios_command:
+        commands:
+          - "show running-config | include aaa new-model"
+      register: command_output
+      connection: network_cli
+
+    - name: Display result
+      debug:
+        var: command_output.stdout_lines
+
+    - name: Check if aaa authentication login is enabled
+      ios_command:
+        commands:
+          - "show run | incl aaa authentication login"
+      register: command_2_output
+      connection: network_cli
+
+    - name: Display result
+      debug:
+        var: command_2_output.stdout_lines
+
+    - name: Check if aaa authentication enable default is enabled
+      ios_command:
+        commands:
+          - "show running-config | incl aaa authentication enable"
+      register: command_3_output
+      connection: network_cli
+
+    - name: Display result
+      debug:
+        var: command_3_output.stdout_lines
+
+    - name: Check if login authentication for line con 0 is set
+      ios_command:
+        commands:
+          - "sh run | sec line | incl login authentication"
+      register: command_4_output
+      connection: network_cli
+
+    - name: Display result
+      debug:
+        var: command_4_output.stdout_lines
