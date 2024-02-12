@@ -5,7 +5,7 @@ pipeline {
             steps {
                 script {
                     def playbookResult = ansiblePlaybook(
-                        credentialsId: '98c96883-f41b-44a7-bef3-065cbd49804b',
+                        credentialsId: '98c96883-f41b-44a7-bef3-065cbd49804b', #change credentialsId according to machine
                         disableHostKeyChecking: true,
                         installation: 'Ansible',
                         inventory: 'hosts',
