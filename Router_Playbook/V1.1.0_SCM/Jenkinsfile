@@ -33,6 +33,20 @@ pipeline {
                 }
             }
         }
+
+         stage('Checkout from GitHub') { // Pulls script from github
+            steps {
+                script {
+                    dir("Router_Playbook/${version}") {
+                        sh "cat Router_Playbook.yml"  // Display the content of the playbook file 
+                        sh "cp Router_Playbook.yml ${WORKSPACE}/Router_Playbook.yml" // The playbook only runs from the root workspace folder hence its copied out. Same for the host file
+                    }
+                    sh "cat Router_Playbook/hosts"
+                    sh "cp Router_Playbook/hosts ${WORKSPACE}/hosts" // Display the content of the hosts file
+                }
+            }
+        }
+
         stage('Authenticate with Vault') { // Retrieve credentials from hashicorp vault - Make sure you have decrypted the vault
             steps {
                 script {
