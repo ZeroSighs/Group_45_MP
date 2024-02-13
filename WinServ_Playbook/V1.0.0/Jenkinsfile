@@ -61,10 +61,17 @@ pipeline {
                 }
             }
         }  
-        stage('Perform Security Tests') {
+        stage('Perform Security Tests (CIS Benchmark)') {
             steps {
                 script {
                     ansiblePlaybook([extraVars: [ansible_user: "${adadmuser}", ansible_password: "${adadmpass}"], disableHostKeyChecking: true, installation: 'Ansible', inventory: 'hosts', playbook: 'WinServ_CIS.yml', vaultTmpPath: ''])
+                }
+            }
+        }
+        stage('Perform Security Tests (NMAP Script)') {
+            steps {
+                script {
+                    sh "/usr/share/scripts/WinServ_nmap.sh"
                 }
             }
         }
@@ -82,4 +89,3 @@ pipeline {
             }
     }  
 }
-        

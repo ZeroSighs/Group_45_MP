@@ -20,7 +20,7 @@ pipeline {
     }
     stages {
         
-        stage('Check if host is online') {
+        stage('Check if host is online') { //This is a basic ping test - returns exit code 0 if ping is successful
              steps {
                 script {
                 def pingExitCode = sh(script: "ping -c 4 ${winhost}", returnStatus: true)
@@ -36,7 +36,7 @@ pipeline {
         stage('Authenticate with Vault') {
             steps {
                 script {
-                    
+                        // retrieves hashicorp vault credentials (both the domain user, local admin and domain admin credentials are stored here)
                         withVault(configuration: [disableChildPoliciesOverride: false, engineVersion: 1, timeout: 60, vaultCredentialId: 'vault-jenkins', vaultUrl: 'http://127.0.0.1:8200'], vaultSecrets: [[path: 'secret/ad_credentials', secretValues: [[envVar: 'adadmuser', vaultKey: 'jadmin_username'], [envVar: 'adadmpass', vaultKey: 'jadmin_password'], [envVar: 'userpass', vaultKey: 'luser_password'], [envVar: 'useruser', vaultKey: 'luser_username']]]]) 
                             {
                             adadmuser = env.adadmuser
@@ -63,7 +63,7 @@ pipeline {
             }
         }  
         stage('Run Ansible Playbook') {
-            steps {
+            steps { //adadmuser - domain admin for authenticating with domain controller, useruser - local admin for remoting in
                 script {
                     ansiblePlaybook([extraVars: [adadmuser: "${adadmuser}", adadmpass: "${adadmpass}", ansible_user: "${useruser}", ansible_password: "${userpass}"], disableHostKeyChecking: true, installation: 'Ansible', inventory: 'hosts', playbook: 'WinHost_Playbook.yml', vaultTmpPath: ''])
                 }
@@ -75,7 +75,9 @@ pipeline {
             }
             steps {
                 script {
+                    // The API Link is generated when you create a bot. Keep this link safe as anyone can use the API Key (with the link) to send messages using the bot
                     msg = "Device ${winhost} succesfully added to domain using playbook ${pbfilePath}"
+                    // format this as json and curl from the VM to send a message through the telegram
                     sh "curl -X POST -H 'Content-Type: application/json' -d '{\"chat_id\": \"6680816225\", \"text\": \"$msg\", \"disable_notification\": true}' https://api.telegram.org/bot6964667296:AAF8Bv8XibWEPeQ4CQCL5htOfEVJTrffhHs/sendMessage"
                 }
                     
