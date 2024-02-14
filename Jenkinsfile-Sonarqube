@@ -2,11 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Run Scan') {
-            steps {
-                withSonarQubeEnv(installationName: 'sqtest' ) {
-                    sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
-                }
+        stage('SonarQube analysis') {
+            withSonarQubeEnv(credentialsId: 'jenkins-sonar-final', installationName: 'sqtest') {
+                sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
             }
         }
 
