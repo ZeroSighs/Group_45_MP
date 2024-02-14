@@ -3,14 +3,19 @@ pipeline {
 
     stages {
         stage('SonarQube analysis') {
-            withSonarQubeEnv(credentialsId: 'jenkins-sonar-final', installationName: 'sqtest') {
-                sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
+            steps {
+                script {
+                    // Run SonarQube analysis
+                    withSonarQubeEnv(credentialsId: 'jenkins-sonar-final', installationName: 'sqtest') {
+                        sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
+                    }
+                }
             }
         }
 
         stage('Send Email Notification for Success') {
             when {
-                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+                expression { currentBuild.result == 'SUCCESS' }
             }
             steps {
                 emailext (
@@ -24,7 +29,7 @@ pipeline {
 
         stage('Send Email Notification for Failure') {
             when {
-                expression { currentBuild.resultIsBetterOrEqualTo('FAILURE') }
+                expression { currentBuild.result == 'FAILURE' }
             }
             steps {
                 emailext (
