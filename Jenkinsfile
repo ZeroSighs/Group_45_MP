@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Run CMD Commands') {
+            steps {
+                bat 'cd C:/Users/jenkins/vagrant'
+
+            }
+        }
 
         stage('Send Email Notification for Success') {
             when {
