@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Run CMD Commands') {
+            steps {
+                bat 'cd /d "C:/Users/jenkins/AppData/Local/Jenkins/.jenkins/workspace/Vagrant Pipeline" && vagrant destroy'
+                bat 'y'
+            }
+        }
+
+        stage('Send Email Notification for Success') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
+            }
+            steps {
+                emailext (
+                    attachLog: true,
+                    subject: "Vagrant VM Removal Result for Sonarqube VM: Successful",
+                    body: 'Successful Virtual Machine Desconstruction on Windows PC.',
+                    to: 'zacharytang@outlook.com'
+                )
+            }
+        }
+
+        stage('Send Email Notification for Failure') {
+            when {
+                expression { currentBuild.resultIsBetterOrEqualTo('FAILURE') }
+            }
+            steps {
+                emailext (
+                    attachLog: true,
+                    subject: "Vagrant VM Removal Result for Sonarqube VM: Error",
+                    body: 'VM had issues being taken down, log output shown below',
+                    to: 'zacharytang@outlook.com'
+                )
+            }
+        } 
+    }
+}
