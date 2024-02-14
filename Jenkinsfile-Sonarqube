@@ -6,7 +6,7 @@ pipeline {
             steps {
                 script {
                     // Run SonarQube analysis
-                    withSonarQubeEnv(credentialsId: 'jenkins-sonar-final', installationName: 'sqtest') {
+                    withSonarQubeEnv(credentialsId: 'TRULYFINAL', installationName: 'sqtest') {
                         echo '${env.SONAR_HOST_URL} //TO TEST CONNECTION'
                         sh 'mvn clean package sonar:sonar'
                     }
