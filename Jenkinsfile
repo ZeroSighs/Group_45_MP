@@ -1,13 +1,6 @@
 pipeline {
     agent any
-
-    environment {
-        branch = "vagrant"
-        githubRepoURL = "https://github.com/ZeroSighs/Group_45_MP.git"
-    }
-
     stages {
- 
 
         stage('Run Ansible Playbook') {
             steps {
