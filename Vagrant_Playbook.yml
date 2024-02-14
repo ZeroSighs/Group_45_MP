@@ -1,0 +1,27 @@
+---
+- name: Vagrant Sonarqube Playbook
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: saving vm configurations & setup
+      win_shell: vagrant package --base 4cf729b2-bb5c-4188-bca8-510cc7332f98 --output sonarqubevm.box
+      args:
+        executable: cmd
+        chdir: C:\Users\jenkins\vagrant
+
+    - name: register the vm
+      win_shell: vagrant box add sonarqubevm.box --name "sonarqubevm"
+      args:
+        executable: cmd
+        chdir: C:\Users\jenkins\vagrant
+
+    - name: configuring vagrantfile to follow sonarqubevm setup
+      win_shell: vagrant init sonarqubevm
+      args:
+        executable: cmd
+        chdir: C:\Users\jenkins\vagrant
+    - name: To boot up the vm
+      win_shell: vagrant up
+      args:
+        executable: cmd
+        chdir: C:\Users\jenkins\vagrant
