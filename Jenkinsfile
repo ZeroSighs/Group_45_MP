@@ -4,6 +4,11 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
+                script {
+                    def currentDir = pwd()
+                    echo "Current viewing filepath: ${currentDir}"
+                }
+                
                 ansiblePlaybook(
                     playbook: 'Vagrant_Playbook.yml',
                     extraVars: [
