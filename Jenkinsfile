@@ -8,7 +8,6 @@ pipeline {
                 bat 'vagrant package --base 4cf729b2-bb5c-4188-bca8-510cc7332f98 --output sonarqubevm.box'
                 bat 'vagrant box add sonarqubevm.box --name "sonarqubevm"'
                 bat 'vagrant init sonarqubevm'
-                bat 'vagrant up'
 
             }
         }
