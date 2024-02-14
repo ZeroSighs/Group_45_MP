@@ -1,22 +1,14 @@
 pipeline {
     agent any
-    stages {
 
-        stage('Run Ansible Playbook') {
+    stages {
+        stage('Run CMD Commands') {
             steps {
-                script {
-                    def currentDir = pwd()
-                    echo "Current viewing filepath: ${currentDir}"
-                }
-                
-                ansiblePlaybook(
-                    playbook: 'Vagrant_Playbook.yml',
-                    extraVars: [
-                        disableHostKeyChecking: true,
-                        installation: 'Ansible',
-                        vaultTmpPath: ''
-                    ]
-                )
+                bat 'cd C:/Users/jenkins/vagrant'
+                bat 'vagrant package --base 4cf729b2-bb5c-4188-bca8-510cc7332f98 --output sonarqubevm.box'
+                bat 'vagrant box add sonarqubevm.box --name "sonarqubevm"'
+                bat 'vagrant init sonarqubevm'
+                bat 'vagrant up'
             }
         }
 
@@ -46,6 +38,6 @@ pipeline {
                     to: 'zacharytang@outlook.com'
                 )
             }
-        }        
+        } 
     }
 }
