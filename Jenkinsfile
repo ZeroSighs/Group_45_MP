@@ -22,11 +22,7 @@ pipeline {
 
         stage('Run Ansible Playbook') {
             steps {
-                ansiblePlaybook([extraVars: 
-                    	disableHostKeyChecking: true, 
-                    	installation: 'Ansible', 
-                    	playbook: 'Vagrant_Playbook.yml', 
-                    	vaultTmpPath: ''])
+                ansiblePlaybook([extraVars: disableHostKeyChecking: true, installation: 'Ansible', playbook: 'Vagrant_Playbook.yml'])
             }
         }
 
